@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+docker compose down --remove-orphans --volumes --rmi="all"
+docker compose build --no-cache
+docker compose up --detach
+
+docker compose exec php sh -c 'composer install --no-interaction'

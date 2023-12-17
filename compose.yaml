@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+
+  php:
+    build:
+      context: '.docker/php/'
+      dockerfile: 'Dockerfile'
+    user: '1000'
+    working_dir: '/app'
+    stdin_open: true
+    tty: true
+    volumes:
+      - './:/app'
