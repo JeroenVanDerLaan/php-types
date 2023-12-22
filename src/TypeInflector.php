@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Jeroenvanderlaan\Types;
 
-final class Inflector
+final class TypeInflector
 {
-    public static function getTypeOf(mixed $value): Type
+    public static function typeof(mixed $value): Type
     {
         return match (true) {
             $value === null => Type::Null,
@@ -21,7 +21,7 @@ final class Inflector
             is_array($value) => self::getArrayType($value),
             is_iterable($value) => Type::Iterable,
             is_object($value) => Type::Object,
-            default => Type::resolve(gettype($value)),
+            default => Type::get(gettype($value)),
         };
     }
 
@@ -42,7 +42,7 @@ final class Inflector
     {
         $types = [];
         foreach ($array as $key => $value) {
-            $type = self::getTypeOf($key);
+            $type = self::typeof($key);
             $types[$type->value] = $type;
         }
         if (empty($types)) {
@@ -56,22 +56,11 @@ final class Inflector
     {
         $types = [];
         foreach ($array as $value) {
-            $type = self::getTypeOf($value);
+            $type = self::typeof($value);
             $types[$type->value] = $type;
         }
         if (empty($types)) {
             return [Type::Mixed];
-        }
-        return array_values($types);
-    }
-
-    /** @return non-empty-list<Type> */
-    public static function getUnionTypes(string $union): array
-    {
-        $types = [];
-        foreach (explode('|', $union) as $name) {
-            $type = Type::resolve($name);
-            $types[$type->value] = $type;
         }
         return array_values($types);
     }

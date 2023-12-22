@@ -11,100 +11,106 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Type::class)]
 class TypeTest extends TestCase
 {
-    public function testResolveToNull(): void
+    public function testGetNull(): void
     {
-        $type = Type::resolve('null');
+        $type = Type::get('null');
         $this->assertEquals(Type::Null, $type);
     }
 
-    public function testResolveToBool(): void
+    public function testGetBool(): void
     {
-        $type = Type::resolve('bool');
+        $type = Type::get('bool');
         $this->assertEquals(Type::Bool, $type);
     }
 
-    public function testResolveToInt(): void
+    public function testGetInt(): void
     {
-        $type = Type::resolve('int');
+        $type = Type::get('int');
         $this->assertEquals(Type::Int, $type);
     }
 
-    public function testResolveToFloat(): void
+    public function testGetFloat(): void
     {
-        $type = Type::resolve('float');
+        $type = Type::get('float');
         $this->assertEquals(Type::Float, $type);
     }
 
-    public function testResolveToNumber(): void
+    public function testGetNumber(): void
     {
-        $type = Type::resolve('number');
+        $type = Type::get('number');
         $this->assertEquals(Type::Number, $type);
     }
 
-    public function testResolveToString(): void
+    public function testGetString(): void
     {
-        $type = Type::resolve('string');
+        $type = Type::get('string');
         $this->assertEquals(Type::String, $type);
     }
 
-    public function testResolveToScalar(): void
+    public function testGetScalar(): void
     {
-        $type = Type::resolve('scalar');
+        $type = Type::get('scalar');
         $this->assertEquals(Type::Scalar, $type);
     }
 
-    public function testResolveToResource(): void
+    public function testGetResource(): void
     {
-        $type = Type::resolve('resource');
+        $type = Type::get('resource');
         $this->assertEquals(Type::Resource, $type);
     }
 
-    public function testResolveToCallable(): void
+    public function testGetCallable(): void
     {
-        $type = Type::resolve('callable');
+        $type = Type::get('callable');
         $this->assertEquals(Type::Callable, $type);
     }
 
-    public function testResolveToList(): void
+    public function testGetList(): void
     {
-        $type = Type::resolve('list');
+        $type = Type::get('list');
         $this->assertEquals(Type::List, $type);
     }
 
-    public function testResolveToMap(): void
+    public function testGetMap(): void
     {
-        $type = Type::resolve('map');
+        $type = Type::get('map');
         $this->assertEquals(Type::Map, $type);
     }
 
-    public function testResolveToArray(): void
+    public function testGetArray(): void
     {
-        $type = Type::resolve('array');
+        $type = Type::get('array');
         $this->assertEquals(Type::Array, $type);
     }
 
-    public function testResolveToIterable(): void
+    public function testGetIterable(): void
     {
-        $type = Type::resolve('iterable');
+        $type = Type::get('iterable');
         $this->assertEquals(Type::Iterable, $type);
     }
 
-    public function testResolveToObject(): void
+    public function testGetObject(): void
     {
-        $type = Type::resolve('object');
+        $type = Type::get('object');
         $this->assertEquals(Type::Object, $type);
     }
 
-    public function testResolveToMixed(): void
+    public function testGetMixed(): void
     {
-        $type = Type::resolve('mixed');
+        $type = Type::get('mixed');
         $this->assertEquals(Type::Mixed, $type);
     }
 
-    public function testResolveToInvalid(): void
+    public function testGetInvalid(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        Type::resolve('invalid');
+        Type::get('invalid');
+    }
+
+    public function testParse(): void
+    {
+        $type = Type::parse('int|string');
+        $this->assertEquals([Type::Int, Type::String], $type);
     }
 
     public function testIsEqualTo(): void
@@ -125,22 +131,22 @@ class TypeTest extends TestCase
         $this->assertFalse($type->isOneOf(Type::Bool, Type::Int));
     }
 
-    public function testIsCoercedToScalar(): void
+    public function testIsCastableToScalar(): void
     {
         $type = Type::Int;
-        $this->assertTrue($type->isCoercedTo(Type::Number));
+        $this->assertTrue($type->isCastableTo(Type::Number));
     }
 
-    public function testIsCoercedToArray(): void
+    public function testIsCastableToArray(): void
     {
         $type = Type::Iterable;
-        $this->assertTrue($type->isCoercedTo(Type::Array));
+        $this->assertTrue($type->isCastableTo(Type::Array));
     }
 
-    public function testIsNotCoercedTo(): void
+    public function testIsNotCastableTo(): void
     {
         $type = Type::Iterable;
-        $this->assertFalse($type->isCoercedTo(Type::Bool));
+        $this->assertFalse($type->isCastableTo(Type::Bool));
     }
 
     public function testIsMixed(): void

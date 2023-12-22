@@ -1,15 +1,17 @@
 # PHP Types
 
-Inflects and formats any given PHP value using a `Type` enumeration.
+Utilities for working with and formatting PHP types.
 
 ```php
-use Jeroenvanderlaan\Types\Formatter;
-use Jeroenvanderlaan\Types\Inflector;
 use Jeroenvanderlaan\Types\Type;
+use Jeroenvanderlaan\Types\TypeFormatter;
+use Jeroenvanderlaan\Types\TypeInflector;
 
-Type::resolve('integer'); // Type::Int
-Inflector::getTypeOf(['a' => 'b'])); // Type::Map
-Formatter::formatTypeOf([1, 'a']); // 'list<int|string>'
+Type::get('float')->isCastableTo(Type::Int); // true
+
+TypeInflector::typeof('John'); // Type::String
+
+TypeFormatter::formatTypeOf([1, 2, 'a', 'b']); // 'list<int|string>'
 ```
 
 ## Installation
@@ -21,72 +23,92 @@ composer require jeroenvanderlaan/php-types
 ## Usage
 
 ```php
-use Jeroenvanderlaan\Types\Formatter;
-use Jeroenvanderlaan\Types\Inflector;
 use Jeroenvanderlaan\Types\Type;
+use Jeroenvanderlaan\Types\TypeFormatter;
+use Jeroenvanderlaan\Types\TypeInflector;
 
-// Resolve a Type enumeration by name (or alias)
-$null = Type::resolve('null');
-$bool = Type::resolve('bool');
-$int = Type::resolve('int');
-$float = Type::resolve('float');
-$number = Type::resolve('number');
-$string = Type::resolve('string');
-$scalar = Type::resolve('scalar');
-$resource = Type::resolve('resource');
-$callable = Type::resolve('callable');
-$object = Type::resolve('object');
-$list = Type::resolve('list');
-$map = Type::resolve('map');
-$array = Type::resolve('array');
-$iterable = Type::resolve('iterable');
+// Get a Type by name or alias
+Type::get('int'); // Type::Int
+Type::get('integer'); // Type::Int
 
-// Inflect Type enumeration from value
-$null = Inflector::getTypeOf(null);
-$bool = Inflector::getTypeOf(true);
-$int = Inflector::getTypeOf(1);
-$float = Inflector::getTypeOf(1.0);
-$number = Inflector::getTypeOf('1.0');
-$string = Inflector::getTypeOf('John');
-$resource = Inflector::getTypeOf(STDOUT);
-$callable = Inflector::getTypeOf(fn () => null);
-$object = Inflector::getTypeOf(new stdClass());
-$list = Inflector::getTypeOf([1, 2]);
-$map = Inflector::getTypeOf(['a' => 'b']);
-$array = Inflector::getTypeOf([1, 'a' => 'b']);
-$iterable = Inflector::getTypeOf(new ArrayIterator([1, 2]));
+// Parse union Types
+Type::parse('int|float'); // [Type::Int, Type::Float]
 
-// Format type of value
-Formatter::formatTypeOf(null); // 'null'
-Formatter::formatTypeOf(true); // 'bool'
-Formatter::formatTypeOf(1); // 'int'
-Formatter::formatTypeOf(1.0); // 'float'
-Formatter::formatTypeOf('1.0'); // 'number'
-Formatter::formatTypeOf('John'); // 'string'
-Formatter::formatTypeOf(STDOUT); // 'resource'
-Formatter::formatTypeOf(fn () => null); // 'callable'
-Formatter::formatTypeOf(new stdClass()); // 'stdClass
-Formatter::formatTypeOf([1, 2]); // 'list<int>'
-Formatter::formatTypeOf([true, 1, 1.0, '1.0']); // 'list<bool|int|float|string>'
-Formatter::formatTypeOf(['a' => 'b']); // 'map<string>'
-Formatter::formatTypeOf(['a' => 'b', 'b' => 1]); // 'map<string|int>'
-Formatter::formatTypeOf([1, 'a' => 'b']); // 'array<int|string>'
-Formatter::formatTypeOf(new ArrayIterator([1, 2])); // 'ArrayIterator<int>'
+// Inflect a Type from a value
+TypeInflector::typeof('foobar'); // Type::String
+TypeInflector::typeof([1, 2]); // Type::List
+TypeInflector::typeof(['a' => 'b'])); // Type::Map
 
-// Work with union types
-$types = Inflector::getUnionTypes('bool|int|string');
-Formatter::formatUnionTypes(...$types); // 'bool|int|string'
+// Format a Type
+TypeFormatter::formatType(Type::Int); // 'int'
+TypeFormatter::formatType(Type::Int, Type::Float); // 'int|float'
 
-// Apply type assertions
-if (Type::Bool->isOneOf(...$types)) {
-    $type = Type::Bool;
-}
-$value = '1000';
-if (Inflector::getTypeOf($value)->isCoercedTo(Type::Int)) {
-    $value = (int) $value;
-}
-$array = new ArrayIterator([1, 2]);
-if (Inflector::getTypeOf($array)->isArrayLike()) {
-    $array = (array) $array;
-}
+// Format the Type of value
+TypeFormatter::formatTypeOf(1); // 'int'
+TypeFormatter::formatTypeOf([1, 'a']); // 'list<int|string>'
+TypeFormatter::formatTypeOf([['a'], ['b']]); // 'list<list<string>>'
+TypeFormatter::formatTypeOf(new stdClass); // 'stdClass'
+```
+
+## Examples
+
+```php
+use Jeroenvanderlaan\Types\Type;
+use Jeroenvanderlaan\Types\TypeFormatter;
+use Jeroenvanderlaan\Types\TypeInflector;
+
+Type::get('null'); // Type::Null
+Type::get('bool'); // Type::Bool
+Type::get('int'); // Type::Int
+Type::get('float'); // Type::Float
+Type::get('number'); // Type::Number
+Type::get('string'); // Type::String
+Type::get('scalar'); // Type::Scalar
+Type::get('resource'); // Type::Resource
+Type::get('callable'); // Type::Callable
+Type::get('object'); // Type::Object
+Type::get('list'); // Type::List
+Type::get('map'); // Type::Map
+Type::get('array'); // Type::Array
+Type::get('iterable'); // Type::Iterable
+
+TypeInflector::typeof(null); // Type::Null
+TypeInflector::typeof(true); // Type::Bool
+TypeInflector::typeof(1); // Type::Int
+TypeInflector::typeof(1.0); // Type::Float
+TypeInflector::typeof('1.0'); // Type::Number
+TypeInflector::typeof('John'); // Type::String
+TypeInflector::typeof(STDOUT); // Type::Resource
+TypeInflector::typeof(fn() => null); // Type::Callable
+TypeInflector::typeof(new stdClass()); // Type::Object
+TypeInflector::typeof([1, 2]); // Type::List
+TypeInflector::typeof(['a' => 'b']); // Type::Map
+TypeInflector::typeof([1, 'a' => 'b']); // Type::Array
+TypeInflector::typeof(new ArrayIterator([1, 2])); // Type::Iterable
+
+TypeFormatter::formatTypeOf(null); // 'null'
+TypeFormatter::formatTypeOf(true); // 'bool'
+TypeFormatter::formatTypeOf(1); // 'int'
+TypeFormatter::formatTypeOf(1.0); // 'float'
+TypeFormatter::formatTypeOf('1.0'); // 'number'
+TypeFormatter::formatTypeOf('John'); // 'string'
+TypeFormatter::formatTypeOf(STDOUT); // 'resource'
+TypeFormatter::formatTypeOf(fn() => null); // 'callable'
+TypeFormatter::formatTypeOf(new stdClass()); // 'stdClass
+TypeFormatter::formatTypeOf([1, 2]); // 'list<int>'
+TypeFormatter::formatTypeOf([true, 1, 1.0, '1.0']); // 'list<bool|int|float|string>'
+TypeFormatter::formatTypeOf(['a' => 'b']); // 'map<string>'
+TypeFormatter::formatTypeOf(['a' => 'b', 'b' => 1]); // 'map<string|int>'
+TypeFormatter::formatTypeOf([1, 'a' => 'b']); // 'array<int|string>'
+TypeFormatter::formatTypeOf(new ArrayIterator([1, 2])); // 'ArrayIterator<int>'
+
+Type::Bool->isEqualTo(Type::Bool); // true
+Type::Int->isOneOf(Type::Int, Type::Float); // true
+Type::Int->isCastableTo(Type::Float); // true
+Type::Mixed->isMixed(); // true
+Type::Number->isNumeric(); // true
+Type::String->isScalar(); // true
+Type::Resource->isComplex(); // true
+Type::Iterable->isArrayLike(); // true
+Type::Map->isObjectLike(); // true
 ```

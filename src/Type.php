@@ -24,7 +24,7 @@ enum Type: string
     case Array = 'array';
     case Iterable = 'iterable';
 
-    public static function resolve(string $type): self
+    public static function get(string $type): self
     {
         $type = strtolower($type);
         return match ($type) {
@@ -88,6 +88,17 @@ enum Type: string
         };
     }
 
+    /** @return non-empty-list<self> */
+    public static function parse(string $union): array
+    {
+        $types = [];
+        foreach (explode('|', $union) as $name) {
+            $type = self::get($name);
+            $types[$type->value] = $type;
+        }
+        return array_values($types);
+    }
+
     public function isEqualTo(self $type): bool
     {
         return $this->value === $type->value;
@@ -103,7 +114,7 @@ enum Type: string
         return false;
     }
 
-    public function isCoercedTo(self $type): bool
+    public function isCastableTo(self $type): bool
     {
         if ($type->isScalar() && $this->isScalar()) {
             return true;

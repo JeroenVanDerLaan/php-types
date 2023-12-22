@@ -4,50 +4,68 @@ declare(strict_types=1);
 
 namespace Jeroenvanderlaan\Types\Tests;
 
-use Jeroenvanderlaan\Types\Formatter;
+use Jeroenvanderlaan\Types\TypeFormatter;
 use Jeroenvanderlaan\Types\Type;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-#[CoversClass(Formatter::class)]
+#[CoversClass(TypeFormatter::class)]
 #[UsesClass(Type::class)]
-class FormatterTest extends TestCase
+class TypeFormatterTest extends TestCase
 {
+    public function testFormatType(): void
+    {
+        $type = TypeFormatter::formatType(Type::Float);
+        $this->assertEquals('float', $type);
+    }
+
+    public function testFormatUnionType(): void
+    {
+        $type = TypeFormatter::formatType(Type::Int, Type::String);
+        $this->assertEquals('int|string', $type);
+    }
+
+    public function testFormatDefaultType(): void
+    {
+        $type = TypeFormatter::formatType();
+        $this->assertEquals(Type::Mixed->value, $type);
+    }
+
     public function testFormatTypeOfNull(): void
     {
-        $type = Formatter::formatTypeOf(null);
+        $type = TypeFormatter::formatTypeOf(null);
         $this->assertEquals(Type::Null->value, $type);
     }
 
     public function testFormatTypeOfBool(): void
     {
-        $type = Formatter::formatTypeOf(true);
+        $type = TypeFormatter::formatTypeOf(true);
         $this->assertEquals(Type::Bool->value, $type);
     }
 
     public function testFormatTypeOfInt(): void
     {
-        $type = Formatter::formatTypeOf(1);
+        $type = TypeFormatter::formatTypeOf(1);
         $this->assertEquals(Type::Int->value, $type);
     }
 
     public function testFormatTypeOfFloat(): void
     {
-        $type = Formatter::formatTypeOf(1.0);
+        $type = TypeFormatter::formatTypeOf(1.0);
         $this->assertEquals(Type::Float->value, $type);
     }
 
     public function testFormatTypeOfNumber(): void
     {
-        $type = Formatter::formatTypeOf('1.0');
+        $type = TypeFormatter::formatTypeOf('1.0');
         $this->assertEquals(Type::Number->value, $type);
     }
 
     public function testFormatTypeOfString(): void
     {
-        $type = Formatter::formatTypeOf('string');
+        $type = TypeFormatter::formatTypeOf('string');
         $this->assertEquals(Type::String->value, $type);
     }
 
@@ -59,13 +77,13 @@ class FormatterTest extends TestCase
 
     public function testFormatTypeOfResource(): void
     {
-        $type = Formatter::formatTypeOf(STDOUT);
+        $type = TypeFormatter::formatTypeOf(STDOUT);
         $this->assertEquals(Type::Resource->value, $type);
     }
 
     public function testFormatTypeOfCallable(): void
     {
-        $type = Formatter::formatTypeOf(fn() => null);
+        $type = TypeFormatter::formatTypeOf(fn() => null);
         $this->assertEquals(Type::Callable->value, $type);
     }
 
@@ -77,67 +95,55 @@ class FormatterTest extends TestCase
 
     public function testFormatTypeOfObject(): void
     {
-        $type = Formatter::formatTypeOf(new stdClass());
+        $type = TypeFormatter::formatTypeOf(new stdClass());
         $this->assertEquals(stdClass::class, $type);
     }
 
     public function testFormatTypeOfList(): void
     {
-        $type = Formatter::formatTypeOf([1, 2]);
+        $type = TypeFormatter::formatTypeOf([1, 2]);
         $this->assertEquals('list<int>', $type);
     }
 
     public function testFormatTypeOfMap(): void
     {
-        $type = Formatter::formatTypeOf(['a' => 'b']);
+        $type = TypeFormatter::formatTypeOf(['a' => 'b']);
         $this->assertEquals('map<string>', $type);
     }
 
     public function testFormatTypeOfArray(): void
     {
-        $type = Formatter::formatTypeOf([1, 'a' => 'b']);
+        $type = TypeFormatter::formatTypeOf([1, 'a' => 'b']);
         $this->assertEquals('array<int|string>', $type);
     }
 
     public function testFormatTypeOfTraversable(): void
     {
-        $type = Formatter::formatTypeOf(new \ArrayIterator([1, 2]));
+        $type = TypeFormatter::formatTypeOf(new \ArrayIterator([1, 2]));
         $this->assertEquals('ArrayIterator<int>', $type);
     }
 
     public function testFormatKeyTypes(): void
     {
-        $type = Formatter::formatKeyTypes([1, 'a' => 'b']);
+        $type = TypeFormatter::formatTypeOfKeys([1, 'a' => 'b']);
         $this->assertEquals('int|string', $type);
     }
 
     public function testFormatDefaultKeyTypes(): void
     {
-        $type = Formatter::formatKeyTypes([]);
+        $type = TypeFormatter::formatTypeOfKeys([]);
         $this->assertEquals('int|string', $type);
     }
 
     public function testFormatElementTypes(): void
     {
-        $type = Formatter::formatElementTypes([1, 'a' => 'b']);
+        $type = TypeFormatter::formatTypeOfElements([1, 'a' => 'b']);
         $this->assertEquals('int|string', $type);
     }
 
     public function testFormatDefaultElementTypes(): void
     {
-        $type = Formatter::formatElementTypes([]);
-        $this->assertEquals(Type::Mixed->value, $type);
-    }
-
-    public function testFormatUnionTypes(): void
-    {
-        $type = Formatter::formatUnionTypes(Type::Int, Type::String);
-        $this->assertEquals('int|string', $type);
-    }
-
-    public function testFormatDefaultUnionTypes(): void
-    {
-        $type = Formatter::formatUnionTypes();
+        $type = TypeFormatter::formatTypeOfElements([]);
         $this->assertEquals(Type::Mixed->value, $type);
     }
 }

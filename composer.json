@@ -1,10 +1,17 @@
 {
     "name": "jeroenvanderlaan/php-types",
-    "description": "PHP types",
+    "description": "Utilities for working with and formatting PHP types.",
+    "keywords": ["type", "types", "datatype", "dump", "inspect"],
     "type": "library",
-    "license": "proprietary",
+    "license": "MIT",
     "minimum-stability": "stable",
     "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Jeroen van der Laan",
+            "email": "jeroenvanderlaan91@gmail.com"
+        }
+    ],
     "require": {
         "php": ">=8.3"
     },
@@ -20,9 +27,5 @@
         "psr-4": {
             "Jeroenvanderlaan\\Types\\Tests\\": "tests/"
         }
-    },
-    "files": [
-    ],
-    "bin": [
-    ]
+    }
 }
